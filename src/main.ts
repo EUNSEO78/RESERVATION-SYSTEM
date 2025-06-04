@@ -6,6 +6,7 @@ import { validationConfig } from './config/validation.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   app.enableCors(corsConfig);
   app.useGlobalPipes(new ValidationPipe(validationConfig));
   await app.listen(process.env.PORT ?? 3001);
