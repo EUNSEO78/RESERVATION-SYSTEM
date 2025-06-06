@@ -1,6 +1,8 @@
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -23,4 +25,8 @@ export class CreateUserDto {
   @IsNotEmpty({ message: '이름을 입력해주세요.' })
   @MaxLength(20, { message: '이름은 최대 20자까지 입력할 수 있습니다.' })
   name: string;
+
+  @IsOptional()
+  @IsIn(['user', 'admin'])
+  role?: 'user' | 'admin';
 }

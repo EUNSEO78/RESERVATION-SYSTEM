@@ -22,6 +22,7 @@ export class UsersService {
       email,
       password: hashedPassword,
       name,
+      role: createUserDto.role || 'user',
     });
     await this.userRepository.save(newUser);
     return newUser;
