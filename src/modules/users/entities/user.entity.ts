@@ -17,6 +17,6 @@ export class User {
   @Column({ default: 'user' })
   role: 'user' | 'admin';
 
-  @Column({ nullable: true })
-  refreshToken: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  refreshToken?: string | null;
 }
