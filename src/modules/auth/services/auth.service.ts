@@ -1,17 +1,21 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from './dto/login.dto';
-import { access } from 'fs';
+import { LoginDto } from '../dto/login.dto';
+import Redis from 'ioredis';
+import { MailService } from 'src/modules/mail/mail.service';
+
+const redis = new Redis(); // 기본 포트 6379
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   // ✅ 로그인 및 토큰 발급
@@ -80,5 +84,18 @@ export class AuthService {
   // 리프레시 토큰을 DB에서 삭제하여 로그아웃 처리
   async logout(userId: number) {
     await this.userRepository.update(userId, { refreshToken: null });
+  }
+
+  // ✅ 비밀번호 재설정을 위한 이메일 전송
+  async sendEmailVerificationCode(email: string) {
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString(); // 6자리 숫자 생성
+
+    // Redis에 저장 (유효시간: 5분)
+    await redis.set(`verify:${email}`, verificationCode, 'EX', 300);
+
+    // 이메일 전송
+    await this.mailService.sendVerificationCode(email, verificationCode);
   }
 }

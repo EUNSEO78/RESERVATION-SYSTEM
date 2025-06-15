@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Req, Res } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -42,5 +42,11 @@ export class AuthController {
     const userId = req.user.id;
     await this.authService.logout(userId);
     return { message: '로그아웃이 완료되었습니다.' };
+  }
+
+  @Post('email-verify')
+  async sendEmailCode(@Body('email') email: string) {
+    await this.authService.sendEmailVerificationCode(email);
+    return { message: '인증 코드가 전송되었습니다' };
   }
 }
